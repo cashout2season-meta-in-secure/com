@@ -1,0 +1,3221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Out - Saison 2</title>
+    <!-- Icône du site -->
+  <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #f59e0b;
+            --light: #ffffff;
+            --light-bg: #f8fafc;
+            --light-border: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header avec date/heure */
+        .header {
+            background: transparent;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .date-time {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 0 auto;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Section d'authentification */
+        .auth-section {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 40px 20px;
+        }
+
+        .auth-section.active {
+            display: flex;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo i {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .auth-form {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--glass-border);
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text);
+            font-size: 1rem;
+            border: 1px solid var(--light-border);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-light);
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Section Application */
+        .app-section {
+            display: none;
+            padding: 20px 0 80px 0;
+        }
+
+        .app-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-border);
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .page-header p {
+            color: var(--text-light);
+        }
+
+        /* Navigation flottante */
+        .floating-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            padding: 10px 0;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-toggle {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--primary);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .nav-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-menu {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1001;
+        }
+
+        .nav-menu.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.logout {
+            color: var(--danger);
+            margin-top: 10px;
+            border-top: 1px solid var(--light-border);
+            padding-top: 15px;
+        }
+
+        .nav-item.logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Cartes en verre */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Page Profil */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+        }
+
+        .profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .profile-info p {
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .user-id {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(45deg, var(--secondary), #eab308);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge.new {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        }
+
+        .badge.vip {
+            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+        }
+
+        .investment-info {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--light-border);
+        }
+
+        .investment-info h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .withdrawal-method {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            border: 1px solid var(--light-border);
+        }
+
+        /* Page Investir */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .plan-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .plan-card.vip {
+            border-color: var(--secondary);
+        }
+
+        .plan-card.vip::before {
+            content: "VIP";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .plan-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .plan-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .plan-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .plan-amount {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            color: var(--text);
+            border: 1px solid var(--light-border);
+        }
+
+        .plan-details {
+            margin-bottom: 20px;
+        }
+
+        .plan-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-border);
+            color: var(--text);
+        }
+
+        .btn-invest {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-invest:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Page Retrait */
+        .withdrawal-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .withdrawal-status {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            border: 1px solid var(--light-border);
+        }
+
+        .btn-withdraw {
+            background: linear-gradient(45deg, var(--success), var(--primary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+        }
+
+        .btn-withdraw:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-withdraw:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .withdrawal-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .withdrawal-method-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .withdrawal-method-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .withdrawal-method-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Modal d'investissement */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2001;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--light-border);
+        }
+
+        .payment-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .payment-details h4 {
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .payment-details p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--light-border);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .upload-area i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .btn-upload {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .rules {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid var(--light-border);
+        }
+
+        .rules h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rules ul {
+            padding-left: 20px;
+        }
+
+        .rules li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* OCR Results - Version simplifiée */
+        .ocr-results {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 1px solid var(--light-border);
+            text-align: center;
+        }
+
+        .ocr-valid {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .ocr-invalid {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Popup de bienvenue */
+        .welcome-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .welcome-popup.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .welcome-content {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .welcome-robot {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-content h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .welcome-content p {
+            color: var(--text);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .btn-ok {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Autres styles */
+        .about-content, .contact-grid, .comments-list, .share-content, .products-grid {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 25px;
+            text-align: center;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--light-border);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--light-border);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .comment-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stars {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star.active {
+            color: var(--secondary);
+        }
+
+        .share-link {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--light-border);
+        }
+
+        .link-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            text-align: left;
+            color: var(--text);
+        }
+
+        .btn-copy {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-copy:hover {
+            background: var(--primary-dark);
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--light-border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .btn-share {
+            background: linear-gradient(45deg, var(--success), var(--primary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+
+        .btn-share:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--light-border);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .product-image {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--light-border);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .btn-order {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-order:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+        }
+
+        /* Graphiques */
+        .chart-container {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: var(--glass-shadow);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.active {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-text {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* Formulaire de commentaire */
+        .add-comment {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        .add-comment h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text);
+            font-size: 1rem;
+            border: 1px solid var(--light-border);
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .comment-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .comment-submit {
+            align-self: flex-end;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+            
+            .auth-form {
+                padding: 30px 20px;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                width: 90%;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header avec date/heure -->
+        <header class="header">
+            <div class="date-time" id="dateTime">
+                <!-- La date sera mise à jour par JavaScript -->
+            </div>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="main-content" id="mainContent">
+            <!-- Section Authentification -->
+            <section class="auth-section" id="authSection">
+                <div class="logo">
+                    <i class="fas fa-coins"></i>
+                    <h1>Cash Out</h1>
+                    <p class="subtitle">Saison 2 - Préparez vos fêtes !</p>
+                </div>
+
+                <!-- Formulaire Inscription -->
+                <div class="auth-form" id="registerForm">
+                    <h2>Créer un compte</h2>
+                    <form id="registerFormElement">
+                        <div class="form-group">
+                            <input type="email" id="registerEmail" placeholder="Adresse email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="registerPassword" placeholder="Mot de passe" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-user-plus"></i> Créer mon compte
+                        </button>
+                    </form>
+                    <p class="auth-switch">
+                        Déjà un compte ? <a href="#" id="showLogin">Connectez-vous</a>
+                    </p>
+                </div>
+
+                <!-- Formulaire Connexion -->
+                <div class="auth-form" id="loginForm">
+                    <h2>Se connecter</h2>
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <input type="text" id="loginIdentifier" placeholder="Email ou ID" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </form>
+                    <p class="auth-switch">
+                        Pas de compte ? <a href="#" id="showRegister">Inscrivez-vous</a>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section Application -->
+            <section class="app-section" id="appSection">
+                <!-- Le contenu sera généré dynamiquement -->
+            </section>
+        </main>
+
+        <!-- Navigation flottante -->
+        <nav class="floating-nav" id="floatingNav">
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-chevron-up"></i> Menu
+            </button>
+            <div class="nav-menu" id="navMenu">
+                <button class="nav-item" data-page="profile">
+                    <i class="fas fa-user"></i> Profil
+                </button>
+                <button class="nav-item" data-page="invest">
+                    <i class="fas fa-chart-line"></i> Investir
+                </button>
+                <button class="nav-item" data-page="withdrawal">
+                    <i class="fas fa-wallet"></i> Retrait
+                </button>
+                <button class="nav-item" data-page="about">
+                    <i class="fas fa-info-circle"></i> À propos
+                </button>
+                <button class="nav-item" data-page="contact">
+                    <i class="fas fa-envelope"></i> Contact
+                </button>
+                <button class="nav-item" data-page="comments">
+                    <i class="fas fa-star"></i> Commentaires
+                </button>
+                <button class="nav-item" data-page="share">
+                    <i class="fas fa-share-alt"></i> Partager
+                </button>
+                <button class="nav-item" data-page="merchant">
+                    <i class="fas fa-shopping-bag"></i> Marchand (Bêta)
+                </button>
+                <button class="nav-item logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="investModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Effectuer un investissement</h3>
+                <p id="selectedPlanName">Plan New</p>
+            </div>
+            
+            <div class="payment-methods">
+                <div class="payment-method">
+                    <div class="payment-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>Moov Money</h4>
+                        <p>+228 98 27 17 52</p>
+                    </div>
+                </div>
+                <div class="payment-method">
+                    <div class="payment-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>TMoney</h4>
+                        <p>Indisponible</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p class="upload-text">Déposez votre capture d'écran (preuve de payement ) ici</p>
+                <button class="btn-upload" id="uploadBtn">Choisir un fichier</button>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+            
+            <!-- Résultats OCR simplifiés -->
+            <div class="ocr-results" id="ocrResults" style="display: none;">
+                <div id="ocrResultsContent"></div>
+            </div>
+            
+            <div class="rules">
+                <h4><i class="fas fa-exclamation-circle"></i> Règles importantes</h4>
+                <ul>
+                    <li>L'investissement peut être annulé dans les 5 minutes après envoi</li>
+                    <li>Le compte est crédité et l'investissement activé 10 minutes après validation</li>
+                    <li>Les retraits seront possibles à partir du 1er décembre</li>
+                </ul>
+            </div>
+            
+            <button class="btn-primary" id="confirmInvest" disabled>
+                <i class="fas fa-check"></i> Confirmer l'investissement
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Configuration Retrait -->
+    <div class="modal" id="withdrawalConfigModal">
+        <div class="modal-content">
+            <button class="modal-close" id="withdrawalConfigClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Configurer un moyen de retrait</h3>
+                <p>Choisissez votre méthode de retrait préférée</p>
+            </div>
+            
+            <div class="withdrawal-methods">
+                <div class="withdrawal-method-card" data-method="moov">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Moov Money</h4>
+                    <p>Retrait sur votre compte Moov</p>
+                </div>
+                <div class="withdrawal-method-card" data-method="yas">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h4>Mix by YAS</h4>
+                    <p>Retrait via Mix YAS</p>
+                </div>
+                <div class="withdrawal-method-card" data-method="paypal">
+                    <i class="fab fa-paypal"></i>
+                    <h4>PayPal</h4>
+                    <p>Retrait sur votre compte PayPal</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Moov Money -->
+    <div class="modal" id="moovModal">
+        <div class="modal-content">
+            <button class="modal-close" id="moovModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Configuration Moov Money</h3>
+                <p>Entrez votre numéro Moov</p>
+            </div>
+            
+            <div class="form-group">
+                <input type="tel" id="moovNumber" placeholder="+229 XX XX XX XX">
+            </div>
+            
+            <button class="btn-primary" id="confirmMoov">
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Mix YAS -->
+    <div class="modal" id="yasModal">
+        <div class="modal-content">
+            <button class="modal-close" id="yasModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Configuration Mix by YAS</h3>
+                <p>Entrez votre numéro Mix By Yas</p>
+            </div>
+            
+            <div class="form-group">
+                <input type="text" id="yasId" placeholder="Votre  numéro Mix By YAS">
+            </div>
+            
+            <button class="btn-primary" id="confirmYas">
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal PayPal -->
+    <div class="modal" id="paypalModal">
+        <div class="modal-content">
+            <button class="modal-close" id="paypalModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Configuration PayPal</h3>
+                <p>Entrez votre email PayPal</p>
+            </div>
+            
+            <div class="form-group">
+                <input type="email" id="paypalEmail" placeholder="votre@email.com">
+            </div>
+            
+            <button class="btn-primary" id="confirmPaypal">
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Photo de Profil -->
+    <div class="modal" id="profilePicModal">
+        <div class="modal-content">
+            <button class="modal-close" id="profilePicModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h3>Changer la photo de profil</h3>
+                <p>Choisissez une image depuis votre appareil</p>
+            </div>
+            
+            <div class="upload-area" id="profilePicUploadArea">
+                <i class="fas fa-camera"></i>
+                <p class="upload-text">Cliquez pour choisir une image</p>
+                <button class="btn-upload" id="profilePicUploadBtn">Choisir une image</button>
+                <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <p>Ou utilisez l'avatar par défaut :</p>
+                <div class="comment-avatar" style="margin: 15px auto; cursor: pointer;" id="defaultAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            
+            <button class="btn-primary" id="confirmProfilePic" disabled>
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        </div>
+    </div>
+
+    <!-- Popup de bienvenue -->
+    <div class="welcome-popup" id="welcomePopup">
+        <div class="welcome-content">
+            <div class="welcome-robot">🤖</div>
+            <h3 id="welcomeTitle">Bienvenue sur Cash Out !</h3>
+            <p id="welcomeMessage">Je suis là pour vous guider dans votre expérience d'investissement.</p>
+            <button class="btn-ok" id="welcomeOk">Compris !</button>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Traitement en cours...</div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Opération réussie !</span>
+    </div>
+
+    <script>
+        // Données initiales
+        const INITIAL_DATA = {
+            users: [],
+            investments: [],
+            orders: [],
+            comments: [
+                {
+                    id: 1,
+                    user: "Marietamekloueh.",
+                    text: "Super fiable, j'ai déjà reçu mes gains de la saison 1. Je recommande !",
+                    stars: 5,
+                    date: "2023-11-15T10:30:00Z"
+                },
+                {
+                    id: 2,
+                    user: "Jeannoussougan.",
+                    text: "Plateforme intuitive et gains intéressants. Parfait pour les fêtes !",
+                    stars: 5,
+                    date: "2023-11-14T14:20:00Z"
+                },
+                {
+                    id: 3,
+                    user: "Sophiemimi89.",
+                    text: "Le service client est réactif et les retraits sont rapides. Excellent !",
+                    stars: 4,
+                    date: "2023-11-13T09:15:00Z"
+                },
+                {
+                    id: 4,
+                    user: "Paul@229.",
+                    text: "J'ai pu préparer mes fêtes de fin d'année grâce à Cash Out. Merci !",
+                    stars: 5,
+                    date: "2023-11-12T16:45:00Z"
+                },
+                {
+                    id: 5,
+                    user: "Alicedon6.",
+                    text: "Simple, efficace et rentable. Que demander de plus ?",
+                    stars: 5,
+                    date: "2023-11-11T11:30:00Z"
+                }
+            ],
+            products: [
+                {
+                    id: 1,
+                    name: "Pack Cadeaux Premium",
+                    price: "25,000 FCFA",
+                    description: "Collection exclusive de cadeaux pour les fêtes",
+                    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&h=200&fit=crop"
+                },
+                {
+                    id: 2,
+                    name: "Smartphone 5G",
+                    price: "150,000 FCFA",
+                    description: "Dernier modèle avec fonctionnalités avancées",
+                    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop"
+                },
+                {
+                    id: 3,
+                    name: "TV LED 55\"",
+                    price: "300,000 FCFA",
+                    description: "Image ultra HD pour vos divertissements",
+                    image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=200&fit=crop"
+                },
+                {
+                    id: 4,
+                    name: "Laptop Gaming",
+                    price: "450,000 FCFA",
+                    description: "Performance exceptionnelle pour le gaming",
+                    image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=300&h=200&fit=crop"
+                },
+                {
+                    id: 5,
+                    name: "Vélo Électrique",
+                    price: "200,000 FCFA",
+                    description: "Déplacement écologique et moderne",
+                    image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=300&h=200&fit=crop"
+                },
+                {
+                    id: 6,
+                    name: "Montre Connectée",
+                    price: "75,000 FCFA",
+                    description: "Suivi santé et notifications intelligentes",
+                    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=300&h=200&fit=crop"
+                }
+            ],
+            investmentPlans: [
+                {
+                    id: 1,
+                    name: "New",
+                    icon: "fas fa-seedling",
+                    invest: "3,000",
+                    retrait: "30,000",
+                    description: "Parfait pour débuter"
+                },
+                {
+                    id: 2,
+                    name: "Intermédiaire",
+                    icon: "fas fa-chart-line",
+                    invest: "5,000",
+                    retrait: "50,000",
+                    description: "Rentabilité optimale"
+                },
+                {
+                    id: 3,
+                    name: "Vétéran",
+                    icon: "fas fa-crown",
+                    invest: "10,000",
+                    retrait: "100,000",
+                    description: "Pour les investisseurs aguerris"
+                },
+                {
+                    id: 4,
+                    name: "Old",
+                    icon: "fas fa-gem",
+                    invest: "20,000",
+                    retrait: "200,000",
+                    description: "Rendements exceptionnels"
+                },
+                {
+                    id: 5,
+                    name: "VIP",
+                    icon: "fas fa-star",
+                    invest: "50,000",
+                    retrait: "500,000",
+                    description: "Élite des investisseurs"
+                }
+            ]
+        };
+
+        // État de l'application
+        let currentUser = null;
+        let currentPage = 'profile';
+        let selectedPlan = null;
+        let selectedRating = 0;
+        let newProfilePic = null;
+
+        // Messages de bienvenue
+        const welcomeMessages = {
+            auth: {
+                title: "Bienvenue sur Cash Out !",
+                message: "Je suis là pour vous guider dans votre expérience d'investissement. Créez votre compte ou connectez-vous pour commencer à investir et préparer vos fêtes de fin d'année !"
+            },
+            profile: {
+                title: "Votre Profil",
+                message: "Sur cette page, vous pouvez voir vos informations personnelles, vos investissements en cours et vos produits commandés. C'est votre tableau de bord personnel !"
+            },
+            invest: {
+                title: "Investir",
+                message: "Choisissez parmi nos 5 plans d'investissement. Chaque plan offre des rendements différents. Plus vous investissez, plus vos gains potentiels sont importants !"
+            },
+            withdrawal: {
+                title: "Retraits",
+                message: "Configurez votre moyen de retrait ici. Une fois votre investissement arrivé à terme, vous pourrez retirer vos gains via Moov Money, Mix YAS ou PayPal."
+            },
+            share: {
+                title: "Partagez et Gagnez",
+                message: "Partagez votre lien personnel et réduisez votre délai de retrait ! Chaque partage validé vous rapproche d'un retrait anticipé."
+            },
+            merchant: {
+                title: "Boutique",
+                message: "Découvrez nos produits exclusifs pour les fêtes ! Commandez maintenant et recevez vos produits le 1er décembre."
+            },
+            success: {
+                title: "Félicitations !",
+                message: "Opération réussie ! Vous êtes sur la bonne voie pour des fêtes de fin d'année mémorables."
+            }
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+
+        function initializeApp() {
+            // Initialiser les données si elles n'existent pas
+            if (!localStorage.getItem('cashOut_data')) {
+                localStorage.setItem('cashOut_data', JSON.stringify(INITIAL_DATA));
+            }
+            
+            // Vérifier si un utilisateur est déjà connecté
+            const savedUser = localStorage.getItem('cashOut_currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+                showPage('profile');
+            } else {
+                showAuth();
+                // Afficher le popup de bienvenue pour la première visite
+                if (!localStorage.getItem('cashOut_firstVisit')) {
+                    setTimeout(() => {
+                        showWelcomePopup('auth');
+                        localStorage.setItem('cashOut_firstVisit', 'true');
+                    }, 1000);
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // Authentification
+            document.getElementById('showLogin').addEventListener('click', showLoginForm);
+            document.getElementById('showRegister').addEventListener('click', showRegisterForm);
+            document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
+            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Navigation
+            document.getElementById('navToggle').addEventListener('click', toggleNavMenu);
+            
+            // Modal d'investissement
+            document.getElementById('modalClose').addEventListener('click', closeInvestModal);
+            document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            document.getElementById('confirmInvest').addEventListener('click', confirmInvestment);
+            
+            // Configuration retrait
+            document.getElementById('withdrawalConfigClose').addEventListener('click', closeWithdrawalConfigModal);
+            document.getElementById('moovModalClose').addEventListener('click', closeMoovModal);
+            document.getElementById('yasModalClose').addEventListener('click', closeYasModal);
+            document.getElementById('paypalModalClose').addEventListener('click', closePaypalModal);
+            document.getElementById('confirmMoov').addEventListener('click', confirmMoov);
+            document.getElementById('confirmYas').addEventListener('click', confirmYas);
+            document.getElementById('confirmPaypal').addEventListener('click', confirmPaypal);
+            
+            // Photo de profil
+            document.getElementById('profilePicModalClose').addEventListener('click', closeProfilePicModal);
+            document.getElementById('profilePicUploadBtn').addEventListener('click', () => document.getElementById('profilePicInput').click());
+            document.getElementById('profilePicInput').addEventListener('change', handleProfilePicUpload);
+            document.getElementById('defaultAvatar').addEventListener('click', useDefaultAvatar);
+            document.getElementById('confirmProfilePic').addEventListener('click', confirmProfilePic);
+            
+            // Popup de bienvenue
+            document.getElementById('welcomeOk').addEventListener('click', closeWelcomePopup);
+            
+            // Fermer les modals en cliquant à l'extérieur
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // Fonctions d'authentification
+        function showAuth() {
+            document.getElementById('authSection').classList.add('active');
+            document.getElementById('appSection').classList.remove('active');
+            document.getElementById('floatingNav').style.display = 'none';
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+        }
+
+        function showApp() {
+            document.getElementById('authSection').classList.remove('active');
+            document.getElementById('appSection').classList.add('active');
+            document.getElementById('floatingNav').style.display = 'flex';
+        }
+
+        function showLoginForm(e) {
+            e.preventDefault();
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+
+        function showRegisterForm(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.add('active');
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            const data = getAppData();
+            
+            // Vérifier si l'email existe déjà
+            if (data.users.find(user => user.email === email)) {
+                showToast('Cet email est déjà utilisé', 'error');
+                return;
+            }
+            
+            // Générer un ID unique
+            const userId = generateUserId();
+            const pseudo = email.split('@')[0];
+            
+            // Créer l'utilisateur
+            const newUser = {
+                id: userId,
+                email,
+                password,
+                pseudo,
+                profilePic: null,
+                createdAt: new Date().toISOString(),
+                shares: 0,
+                earlyWithdrawal: false,
+                withdrawalMethod: null,
+                badge: 'new'
+            };
+            
+            data.users.push(newUser);
+            saveAppData(data);
+            
+            showToast('Compte créé avec succès !', 'success');
+            showLoginForm(e);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('registerFormElement').reset();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('loginIdentifier').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const data = getAppData();
+            
+            // Rechercher l'utilisateur par email ou ID
+            const user = data.users.find(u => 
+                (u.email === identifier || u.id === identifier) && u.password === password
+            );
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('cashOut_currentUser', JSON.stringify(user));
+                showApp();
+                showPage('profile');
+                showToast(`Bienvenue ${user.pseudo} !`, 'success');
+                showWelcomePopup('success');
+            } else {
+                showToast('Identifiants incorrects', 'error');
+            }
+            
+            // Réinitialiser le formulaire
+            document.getElementById('loginFormElement').reset();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('cashOut_currentUser');
+            showAuth();
+            showToast('Déconnexion réussie', 'success');
+        }
+
+        // Fonctions de navigation
+        function toggleNavMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+
+        function showPage(pageName) {
+            currentPage = pageName;
+            
+            // Mettre à jour le contenu de la page
+            document.getElementById('appSection').innerHTML = generatePageContent(pageName);
+            
+            // Initialiser les événements spécifiques à la page
+            initializePageEvents(pageName);
+            
+            // Afficher le popup de bienvenue pour les nouvelles pages
+            if (currentUser && !currentUser[`visited_${pageName}`]) {
+                setTimeout(() => {
+                    showWelcomePopup(pageName);
+                    const data = getAppData();
+                    const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        data.users[userIndex][`visited_${pageName}`] = true;
+                        saveAppData(data);
+                        currentUser[`visited_${pageName}`] = true;
+                        localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                    }
+                }, 500);
+            }
+        }
+
+        function initializePageEvents(pageName) {
+            // Événements pour la navigation
+            document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    showPage(page);
+                    document.getElementById('navMenu').classList.remove('active');
+                });
+            });
+
+            switch(pageName) {
+                case 'invest':
+                    initializeInvestPage();
+                    break;
+                case 'withdrawal':
+                    initializeWithdrawalPage();
+                    break;
+                case 'share':
+                    initializeSharePage();
+                    break;
+                case 'merchant':
+                    initializeMerchantPage();
+                    break;
+                case 'comments':
+                    initializeCommentsPage();
+                    break;
+                case 'profile':
+                    initializeProfilePage();
+                    break;
+            }
+        }
+
+        // Génération du contenu des pages
+        function generatePageContent(page) {
+            switch(page) {
+                case 'profile':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-user"></i> Mon Profil</h2>
+                                <p>Gérez vos informations et suivez vos investissements</p>
+                            </div>
+                            
+                            <div class="glass-card">
+                                <div class="profile-header">
+                                    ${currentUser && currentUser.profilePic ? 
+                                        `<img src="${currentUser.profilePic}" alt="Photo de profil" class="profile-pic" id="profilePic">` :
+                                        `<div class="profile-pic" id="profilePic" style="background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                                            <i class="fas fa-user"></i>
+                                        </div>`
+                                    }
+                                    <div class="profile-info">
+                                        <h3 id="profilePseudo">${currentUser ? currentUser.pseudo : ''}</h3>
+                                        <p id="profileEmail">${currentUser ? currentUser.email : ''}</p>
+                                        <span class="user-id" id="profileId">${currentUser ? `ID: ${currentUser.id}` : ''}</span>
+                                        <div id="profileBadge"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="investment-info">
+                                    <h4><i class="fas fa-wallet"></i> Moyen de retrait configuré</h4>
+                                    <div id="withdrawalMethodInfo"></div>
+                                </div>
+                                
+                                <div class="investment-info">
+                                    <h4><i class="fas fa-chart-line"></i> Investissement en cours</h4>
+                                    <div class="info-grid" id="investmentInfo"></div>
+                                </div>
+                                
+                                <div class="investment-info">
+                                    <h4><i class="fas fa-shopping-bag"></i> Produits commandés</h4>
+                                    <div id="ordersList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                case 'invest':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-chart-line"></i> Investir</h2>
+                                <p>Choisissez votre plan d'investissement pour la Saison 2</p>
+                            </div>
+                            
+                            <div class="plans-grid" id="plansGrid"></div>
+                        </div>
+                    `;
+                    
+                case 'withdrawal':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-wallet"></i> Retrait</h2>
+                                <p>Gérez vos retraits et configurez vos moyens de paiement</p>
+                            </div>
+                            
+                            <div class="withdrawal-content">
+                                <div id="withdrawalSetup"></div>
+                                
+                                <div class="withdrawal-status" id="withdrawalStatus"></div>
+                                
+                                <button class="btn-withdraw" id="withdrawBtn" disabled>
+                                    <i class="fas fa-download"></i> Effectuer un retrait
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                case 'about':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-info-circle"></i> À propos de nous</h2>
+                                <p>Découvrez l'histoire de Cash Out</p>
+                            </div>
+                            
+                            <div class="about-content">
+                                <div class="about-section">
+                                    <h3><i class="fas fa-history"></i> Notre Histoire</h3>
+                                    <p>Cash Out a débuté il y a plusieurs saisons avec une vision simple : permettre à chacun de préparer sereinement ses fêtes de fin d'année. Fort du succès de la Saison 1, nous lançons aujourd'hui la Saison 2 avec des améliorations significatives et de nouvelles fonctionnalités.</p>
+                                </div>
+                                
+                                <div class="about-section">
+                                    <h3><i class="fas fa-bullseye"></i> Notre Mission</h3>
+                                    <p>Notre objectif est d'offrir une plateforme fiable et accessible pour ceux qui souhaitent investir intelligemment en prévision des dépenses des fêtes. Nous croyons en la transparence, la sécurité et la satisfaction de nos membres.</p>
+                                </div>
+                                
+                                <div class="values-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
+                                    <div class="value-card" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;">
+                                        <div class="value-icon" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <h4>Fiabilité</h4>
+                                        <p>Une plateforme sécurisée et des transactions transparentes</p>
+                                    </div>
+                                    <div class="value-card" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;">
+                                        <div class="value-icon" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                                            <i class="fas fa-rocket"></i>
+                                        </div>
+                                        <h4>Innovation</h4>
+                                        <p>Des fonctionnalités modernes pour une expérience optimale</p>
+                                    </div>
+                                    <div class="value-card" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;">
+                                        <div class="value-icon" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;">
+                                            <i class="fas fa-hand-holding-heart"></i>
+                                        </div>
+                                        <h4>Solidarité</h4>
+                                        <p>Nous vous accompagnons pour des fêtes réussies</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                case 'contact':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-envelope"></i> Contact</h2>
+                                <p>Restons en contact pour toute question</p>
+                            </div>
+                            
+                            <div class="contact-grid">
+                                <div class="contact-card" onclick="window.open('https://wa.me/22898271752', '_blank')">
+                                    <div class="contact-icon">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </div>
+                                    <h3>WhatsApp</h3>
+                                    <p>+228 98 27 17 52</p>
+                                </div>
+                                
+                                <div class="contact-card" onclick="window.open('https://t.me/Cashouagents', '_blank')">
+                                    <div class="contact-icon">
+                                        <i class="fab fa-telegram"></i>
+                                    </div>
+                                    <h3>Telegram</h3>
+                                    <p>@cashout</p>
+                                </div>
+                                
+                                <div class="contact-card" onclick="window.location.href='mailto:tmtkover1@gmail.com'">
+                                    <div class="contact-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <h3>Email</h3>
+                                    <p>contact@cashout.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                case 'comments':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-star"></i> Commentaires</h2>
+                                <p>Partagez votre expérience avec la communauté</p>
+                            </div>
+                            
+                            <div class="add-comment">
+                                <h3><i class="fas fa-edit"></i> Laisser un commentaire</h3>
+                                <form class="comment-form" id="commentForm">
+                                    <div class="star-rating" id="starRating">
+                                        <span class="star" data-rating="1">★</span>
+                                        <span class="star" data-rating="2">★</span>
+                                        <span class="star" data-rating="3">★</span>
+                                        <span class="star" data-rating="4">★</span>
+                                        <span class="star" data-rating="5">★</span>
+                                    </div>
+                                    <textarea class="comment-textarea" id="commentText" placeholder="Partagez votre expérience avec Cash Out..." required></textarea>
+                                    <button type="submit" class="comment-submit">
+                                        <i class="fas fa-paper-plane"></i> Publier le commentaire
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="comments-list" id="commentsList"></div>
+                        </div>
+                    `;
+                    
+                case 'share':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-share-alt"></i> Partager le lien</h2>
+                                <p>Partagez et avancez votre date de retrait !</p>
+                            </div>
+                            
+                            <div class="share-content">
+                                <p>Partagez votre lien personnel et gagnez 1 jour de réduction sur votre date de retrait pour chaque partage validé !</p>
+                                
+                                <div class="share-link">
+                                    <span class="link-text" id="shareLinkText">cashout.com/user</span>
+                                    <button class="btn-copy" id="copyLinkBtn">
+                                        <i class="fas fa-copy"></i> Copier
+                                    </button>
+                                </div>
+                                
+                                <div class="progress-container">
+                                    <div class="progress-label">
+                                        <span>Progression :</span>
+                                        <span id="shareProgress">0/5 partages</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                                    </div>
+                                    <p class="info-text" id="shareReward">Partagez 5 fois pour débloquer 1 jour de réduction !</p>
+                                </div>
+                                
+                                <button class="btn-share" id="shareBtn">
+                                    <i class="fab fa-whatsapp"></i> Partager sur WhatsApp
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                case 'merchant':
+                    return `
+                        <div class="page active">
+                            <div class="page-header">
+                                <h2><i class="fas fa-shopping-bag"></i> Marchand</h2>
+                                <p>Commandez vos produits pour les fêtes</p>
+                            </div>
+                            
+                            <div class="products-grid" id="productsGrid"></div>
+                        </div>
+                    `;
+                    
+                default:
+                    return `<div class="page active"><h2>Page non trouvée</h2></div>`;
+            }
+        }
+
+        // Initialisation des pages
+        function initializeProfilePage() {
+            if (!currentUser) return;
+            
+            // Mettre à jour les informations du profil
+            const profilePicElement = document.getElementById('profilePic');
+            profilePicElement.addEventListener('click', openProfilePicModal);
+            
+            document.getElementById('profilePseudo').textContent = currentUser.pseudo;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileId').textContent = `ID: ${currentUser.id}`;
+            
+            // Afficher le badge
+            const badgeElement = document.getElementById('profileBadge');
+            if (currentUser.badge) {
+                let badgeClass = 'badge';
+                let badgeText = currentUser.badge;
+                
+                if (currentUser.badge === 'vip') {
+                    badgeClass += ' vip';
+                    badgeText = 'VIP';
+                } else if (currentUser.badge === 'new') {
+                    badgeClass += ' new';
+                    badgeText = 'Nouveau';
+                }
+                
+                badgeElement.innerHTML = `<span class="${badgeClass}"><i class="fas fa-medal"></i> ${badgeText}</span>`;
+            }
+            
+            // Afficher le moyen de retrait
+            const withdrawalMethodInfo = document.getElementById('withdrawalMethodInfo');
+            if (currentUser.withdrawalMethod) {
+                let methodIcon = '';
+                let methodName = '';
+                
+                switch(currentUser.withdrawalMethod.type) {
+                    case 'moov':
+                        methodIcon = 'fas fa-mobile-alt';
+                        methodName = `Moov Money (${currentUser.withdrawalMethod.number})`;
+                        break;
+                    case 'yas':
+                        methodIcon = 'fas fa-money-bill-wave';
+                        methodName = `Mix by YAS (${currentUser.withdrawalMethod.id})`;
+                        break;
+                    case 'paypal':
+                        methodIcon = 'fab fa-paypal';
+                        methodName = `PayPal (${currentUser.withdrawalMethod.email})`;
+                        break;
+                }
+                
+                withdrawalMethodInfo.innerHTML = `
+                    <div class="withdrawal-method">
+                        <i class="${methodIcon}"></i>
+                        <span>${methodName}</span>
+                    </div>
+                `;
+            } else {
+                withdrawalMethodInfo.innerHTML = `
+                    <p style="text-align: center; color: var(--text-light);">
+                        <i class="fas fa-exclamation-circle"></i> Aucun moyen de retrait configuré
+                    </p>
+                    <button class="btn-primary" onclick="openWithdrawalConfigModal()" style="margin-top: 10px;">
+                        <i class="fas fa-cog"></i> Configurer maintenant
+                    </button>
+                `;
+            }
+            
+            // Mettre à jour les informations d'investissement
+            const data = getAppData();
+            const userInvestments = data.investments.filter(inv => inv.userId === currentUser.id && inv.status !== 'cancelled');
+            const activeInvestment = userInvestments.find(inv => inv.status === 'active');
+            
+            const investmentInfo = document.getElementById('investmentInfo');
+            if (activeInvestment) {
+                const withdrawalDate = calculateWithdrawalDate(currentUser);
+                investmentInfo.innerHTML = `
+                    <div class="info-item">
+                        <span class="info-label">Montant investi</span>
+                        <span class="info-value">${activeInvestment.amountInvested} FCFA</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Gains prévus</span>
+                        <span class="info-value">${activeInvestment.expectedReturn} FCFA</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date d'investissement</span>
+                        <span class="info-value">${formatDate(activeInvestment.investDate)}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Retrait prévu</span>
+                        <span class="info-value">${formatDate(withdrawalDate)}</span>
+                    </div>
+                `;
+            } else {
+                investmentInfo.innerHTML = `
+                    <div class="info-item" style="grid-column: 1 / -1; text-align: center;">
+                        <span class="info-label">Aucun investissement actif</span>
+                        <span class="info-value">Allez dans "Investir" pour commencer</span>
+                    </div>
+                `;
+            }
+            
+            // Afficher les commandes
+            const userOrders = data.orders.filter(order => order.userId === currentUser.id);
+            const ordersList = document.getElementById('ordersList');
+            if (userOrders.length > 0) {
+                ordersList.innerHTML = userOrders.map(order => `
+                    <div class="info-item">
+                        <span class="info-label">${order.productName}</span>
+                        <span class="info-value">Commandé le ${formatDate(order.orderDate)} - ${order.status}</span>
+                    </div>
+                `).join('');
+            } else {
+                ordersList.innerHTML = `
+                    <div class="info-item" style="text-align: center;">
+                        <span class="info-label">Aucune commande en cours</span>
+                        <span class="info-value">Visitez notre boutique pour découvrir nos produits</span>
+                    </div>
+                `;
+            }
+        }
+
+        function initializeWithdrawalPage() {
+            const withdrawalSetup = document.getElementById('withdrawalSetup');
+            const withdrawalStatus = document.getElementById('withdrawalStatus');
+            const withdrawBtn = document.getElementById('withdrawBtn');
+            
+            if (!currentUser.withdrawalMethod) {
+                withdrawalSetup.innerHTML = `
+                    <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary);">
+                        <i class="fas fa-wallet"></i> Configuration requise
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 25px; color: var(--text-light);">
+                        Avant de pouvoir effectuer des retraits, vous devez configurer un moyen de retrait.
+                    </p>
+                    <button class="btn-primary" id="configureWithdrawalBtn">
+                        <i class="fas fa-cog"></i> Configurer un moyen de retrait
+                    </button>
+                `;
+                
+                document.getElementById('configureWithdrawalBtn').addEventListener('click', openWithdrawalConfigModal);
+            } else {
+                let methodInfo = '';
+                switch(currentUser.withdrawalMethod.type) {
+                    case 'moov':
+                        methodInfo = `Moov Money (${currentUser.withdrawalMethod.number})`;
+                        break;
+                    case 'yas':
+                        methodInfo = `Mix by YAS (${currentUser.withdrawalMethod.id})`;
+                        break;
+                    case 'paypal':
+                        methodInfo = `PayPal (${currentUser.withdrawalMethod.email})`;
+                        break;
+                }
+                
+                withdrawalSetup.innerHTML = `
+                    <h3 style="text-align: center; margin-bottom: 20px; color: var(--success);">
+                        <i class="fas fa-check-circle"></i> Moyen de retrait configuré
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 25px;">
+                        Votre moyen de retrait : <strong>${methodInfo}</strong>
+                    </p>
+                    <button class="btn-primary" id="changeWithdrawalBtn" style="background: var(--info);">
+                        <i class="fas fa-edit"></i> Modifier le moyen de retrait
+                    </button>
+                `;
+                
+                document.getElementById('changeWithdrawalBtn').addEventListener('click', openWithdrawalConfigModal);
+            }
+            
+            // Vérifier si le retrait est possible
+            const data = getAppData();
+            const userInvestments = data.investments.filter(inv => inv.userId === currentUser.id && inv.status === 'active');
+            const canWithdraw = userInvestments.length > 0 && isWithdrawalDateReached(currentUser);
+            
+            if (canWithdraw) {
+                withdrawalStatus.innerHTML = `
+                    <h4 style="color: var(--success); text-align: center;">
+                        <i class="fas fa-check-circle"></i> Retrait disponible
+                    </h4>
+                    <p style="text-align: center;">Vous pouvez maintenant effectuer un retrait de vos gains.</p>
+                `;
+                withdrawBtn.disabled = false;
+                withdrawBtn.addEventListener('click', processWithdrawal);
+            } else {
+                withdrawalStatus.innerHTML = `
+                    <h4 style="color: var(--warning); text-align: center;">
+                        <i class="fas fa-clock"></i> Retrait non disponible
+                    </h4>
+                    <p style="text-align: center;">Vos fonds ne sont pas encore disponibles pour le retrait.</p>
+                `;
+                withdrawBtn.disabled = true;
+            }
+        }
+
+        function initializeInvestPage() {
+            const plansGrid = document.getElementById('plansGrid');
+            plansGrid.innerHTML = INITIAL_DATA.investmentPlans.map(plan => `
+                <div class="plan-card ${plan.name === 'VIP' ? 'vip' : ''}">
+                    <div class="plan-header">
+                        <div class="plan-icon">
+                            <i class="${plan.icon}"></i>
+                        </div>
+                        <div class="plan-name">${plan.name}</div>
+                    </div>
+                    <div class="plan-amount">
+                        ${plan.invest} FCFA → ${plan.retrait} FCFA
+                    </div>
+                    <div class="plan-details">
+                        <div class="plan-detail">
+                            <span>Investissement:</span>
+                            <span>${plan.invest} FCFA</span>
+                        </div>
+                        <div class="plan-detail">
+                            <span>Retrait:</span>
+                            <span>${plan.retrait} FCFA</span>
+                        </div>
+                        <div class="plan-detail">
+                            <span>Durée:</span>
+                            <span>Jusqu'au 1er décembre</span>
+                        </div>
+                    </div>
+                    <button class="btn-invest" data-plan='${JSON.stringify(plan)}'>
+                        <i class="fas fa-plus-circle"></i> Investir
+                    </button>
+                </div>
+            `).join('');
+            
+            // Ajouter les événements aux boutons d'investissement
+            document.querySelectorAll('.btn-invest').forEach(button => {
+                button.addEventListener('click', function() {
+                    const plan = JSON.parse(this.getAttribute('data-plan'));
+                    openInvestModal(plan);
+                });
+            });
+        }
+
+        function initializeCommentsPage() {
+            const commentForm = document.getElementById('commentForm');
+            const starRating = document.getElementById('starRating');
+            const commentText = document.getElementById('commentText');
+            
+            // Initialiser le système d'étoiles
+            starRating.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    selectedRating = rating;
+                    
+                    // Mettre à jour l'affichage des étoiles
+                    starRating.querySelectorAll('.star').forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Gérer l'envoi du commentaire
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!selectedRating) {
+                    showToast('Veuillez donner une note', 'error');
+                    return;
+                }
+                
+                if (!commentText.value.trim()) {
+                    showToast('Veuillez écrire un commentaire', 'error');
+                    return;
+                }
+                
+                const data = getAppData();
+                
+                const newComment = {
+                    id: Date.now(),
+                    user: currentUser.pseudo,
+                    text: commentText.value.trim(),
+                    stars: selectedRating,
+                    date: new Date().toISOString()
+                };
+                
+                // Ajouter le nouveau commentaire au début de la liste
+                data.comments.unshift(newComment);
+                saveAppData(data);
+                
+                // Réinitialiser le formulaire
+                selectedRating = 0;
+                starRating.querySelectorAll('.star').forEach(star => {
+                    star.classList.remove('active');
+                });
+                commentText.value = '';
+                
+                // Recharger les commentaires
+                loadComments();
+                
+                showToast('Commentaire publié avec succès !', 'success');
+            });
+            
+            // Charger les commentaires
+            loadComments();
+        }
+
+        function loadComments() {
+            const commentsList = document.getElementById('commentsList');
+            const data = getAppData();
+            
+            commentsList.innerHTML = data.comments.map(comment => `
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <div class="comment-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="comment-user">
+                            <h4>${comment.user}</h4>
+                            <div class="stars">
+                                ${'★'.repeat(comment.stars)}${'☆'.repeat(5 - comment.stars)}
+                            </div>
+                        </div>
+                    </div>
+                    <p class="comment-text">${comment.text}</p>
+                    <small style="color: var(--text-light);">${formatDate(comment.date)}</small>
+                </div>
+            `).join('');
+        }
+
+        function initializeSharePage() {
+            document.getElementById('shareLinkText').textContent = `cashout.com/${currentUser.id}`;
+            updateShareProgress();
+            
+            document.getElementById('copyLinkBtn').addEventListener('click', copyShareLink);
+            document.getElementById('shareBtn').addEventListener('click', shareOnWhatsApp);
+        }
+
+        function initializeMerchantPage() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = INITIAL_DATA.products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x200/10b981/ffffff?text=${encodeURIComponent(product.name)}'">
+                    </div>
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <div class="product-price">${product.price}</div>
+                        <p class="product-description">${product.description}</p>
+                        <button class="btn-order" data-product='${JSON.stringify(product)}'>
+                            <i class="fas fa-shopping-cart"></i> Commander
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Ajouter les événements aux boutons de commande
+            document.querySelectorAll('.btn-order').forEach(button => {
+                button.addEventListener('click', function() {
+                    const product = JSON.parse(this.getAttribute('data-product'));
+                    openProductOrderModal(product);
+                });
+            });
+        }
+
+        // Fonctions pour la photo de profil
+        function openProfilePicModal() {
+            document.getElementById('profilePicModal').classList.add('active');
+            newProfilePic = null;
+            document.getElementById('confirmProfilePic').disabled = true;
+        }
+
+        function closeProfilePicModal() {
+            document.getElementById('profilePicModal').classList.remove('active');
+            document.getElementById('profilePicInput').value = '';
+        }
+
+        function handleProfilePicUpload() {
+            const file = document.getElementById('profilePicInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newProfilePic = e.target.result;
+                    document.getElementById('confirmProfilePic').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function useDefaultAvatar() {
+            newProfilePic = null;
+            document.getElementById('confirmProfilePic').disabled = false;
+        }
+
+        function confirmProfilePic() {
+            const data = getAppData();
+            const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                data.users[userIndex].profilePic = newProfilePic;
+                saveAppData(data);
+                currentUser.profilePic = newProfilePic;
+                localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                
+                closeProfilePicModal();
+                showPage('profile');
+                showToast('Photo de profil mise à jour !', 'success');
+            }
+        }
+
+        // Fonctions OCR simplifiées pour vérifier les captures de paiement
+        async function verifyPaymentWithOCR(imageFile) {
+            showLoader("Analyse de la capture en cours...");
+            
+            try {
+                // Simuler un délai de traitement OCR
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Utiliser Tesseract.js pour l'OCR
+                const { data: { text } } = await Tesseract.recognize(
+                    imageFile,
+                    'fra',
+                    { logger: m => console.log(m) }
+                );
+                
+                hideLoader();
+                
+                // Analyser le texte extrait (version simplifiée)
+                const isValid = analyzePaymentTextSimple(text);
+                
+                // Afficher les résultats OCR simplifiés
+                displayOCRAnalysisSimple(isValid);
+                
+                return isValid;
+                
+            } catch (error) {
+                hideLoader();
+                console.error('Erreur OCR:', error);
+                showToast('Erreur lors de l\'analyse de la capture', 'error');
+                return false;
+            }
+        }
+
+        function analyzePaymentTextSimple(text) {
+            // Convertir le texte en minuscules pour faciliter la recherche
+            const lowerText = text.toLowerCase();
+            
+            // Vérifier les mots-clés essentiels
+            const requiredKeywords = ['transfert', 'reussi', 'montant', 'beneficiaire', 'date'];
+            const foundKeywords = requiredKeywords.filter(keyword => 
+                lowerText.includes(keyword)
+            );
+            
+            // Doit trouver au moins 3 mots-clés sur 5
+            if (foundKeywords.length < 3) {
+                return false;
+            }
+            
+            // Vérifier la date (doit être récente - format DD/MM/YYYY)
+            const dateRegex = /(\d{2}\/\d{2}\/\d{4})/g;
+            const dateMatches = [...text.matchAll(dateRegex)];
+            
+            if (dateMatches.length === 0) {
+                return false;
+            }
+            
+            // Vérifier qu'au moins une date est récente (dans les 7 derniers jours)
+            const hasRecentDate = dateMatches.some(match => {
+                try {
+                    const [day, month, year] = match[1].split('/');
+                    const date = new Date(year, month - 1, day);
+                    const today = new Date();
+                    const diffTime = Math.abs(today - date);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7; // Date dans les 7 derniers jours
+                } catch (e) {
+                    return false;
+                }
+            });
+            
+            if (!hasRecentDate) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        function displayOCRAnalysisSimple(isValid) {
+            const ocrResults = document.getElementById('ocrResults');
+            const ocrResultsContent = document.getElementById('ocrResultsContent');
+            
+            ocrResults.style.display = 'block';
+            
+            if (isValid) {
+                ocrResultsContent.innerHTML = `
+                    <div class="ocr-valid">
+                        <i class="fas fa-check-circle"></i> Capture validée avec succès !
+                    </div>
+                    <p style="margin-top: 10px; color: var(--text-light); font-size: 0.9rem;">
+                        Votre capture a été vérifiée et est correcte.
+                    </p>
+                `;
+            } else {
+                ocrResultsContent.innerHTML = `
+                    <div class="ocr-invalid">
+                        <i class="fas fa-times-circle"></i> Capture non valide
+                    </div>
+                    <p style="margin-top: 10px; color: var(--text-light); font-size: 0.9rem;">
+                        La capture ne correspond pas aux critères requis.
+                    </p>
+                `;
+            }
+            
+            // Activer ou désactiver le bouton de confirmation
+            document.getElementById('confirmInvest').disabled = !isValid;
+        }
+
+        // Fonctions pour les modals (investissement, retrait, etc.)
+        function openInvestModal(plan) {
+            selectedPlan = plan;
+            document.getElementById('selectedPlanName').textContent = `Plan ${plan.name} - ${plan.invest} FCFA → ${plan.retrait} FCFA`;
+            document.getElementById('investModal').classList.add('active');
+            document.getElementById('confirmInvest').disabled = true;
+            
+            // Réinitialiser les résultats OCR
+            document.getElementById('ocrResults').style.display = 'none';
+        }
+
+        function closeInvestModal() {
+            document.getElementById('investModal').classList.remove('active');
+            selectedPlan = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('ocrResults').style.display = 'none';
+        }
+
+        async function handleFileUpload() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                document.getElementById('confirmInvest').disabled = true;
+                
+                // Vérifier la capture avec OCR (version simplifiée)
+                const isValid = await verifyPaymentWithOCR(file);
+                
+                if (isValid) {
+                    showToast('Capture validée avec succès !', 'success');
+                } else {
+                    showToast('Capture non valide. Vérifiez que c\'est bien une preuve de paiement récente.', 'error');
+                }
+            }
+        }
+
+        function confirmInvestment() {
+            if (!selectedPlan || !currentUser) return;
+            
+            showLoader("Finalisation de l'investissement...");
+            
+            setTimeout(() => {
+                const data = getAppData();
+                
+                const investment = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    plan: selectedPlan.name,
+                    amountInvested: parseInt(selectedPlan.invest.replace(/,/g, '')),
+                    expectedReturn: parseInt(selectedPlan.retrait.replace(/,/g, '')),
+                    investDate: new Date().toISOString(),
+                    status: 'active'
+                };
+                
+                data.investments.push(investment);
+                saveAppData(data);
+                
+                hideLoader();
+                closeInvestModal();
+                showToast('Investissement confirmé ! Votre compte sera crédité dans 10 minutes.', 'success');
+                
+                if (currentPage === 'profile') {
+                    showPage('profile');
+                }
+            }, 2000);
+        }
+
+        function openWithdrawalConfigModal() {
+            document.getElementById('withdrawalConfigModal').classList.add('active');
+            
+            document.querySelectorAll('.withdrawal-method-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const method = this.getAttribute('data-method');
+                    openWithdrawalMethodModal(method);
+                });
+            });
+        }
+
+        function closeWithdrawalConfigModal() {
+            document.getElementById('withdrawalConfigModal').classList.remove('active');
+        }
+
+        function openWithdrawalMethodModal(method) {
+            closeWithdrawalConfigModal();
+            
+            switch(method) {
+                case 'moov':
+                    document.getElementById('moovModal').classList.add('active');
+                    break;
+                case 'yas':
+                    document.getElementById('yasModal').classList.add('active');
+                    break;
+                case 'paypal':
+                    document.getElementById('paypalModal').classList.add('active');
+                    break;
+            }
+        }
+
+        function closeMoovModal() {
+            document.getElementById('moovModal').classList.remove('active');
+        }
+
+        function closeYasModal() {
+            document.getElementById('yasModal').classList.remove('active');
+        }
+
+        function closePaypalModal() {
+            document.getElementById('paypalModal').classList.remove('active');
+        }
+
+        function confirmMoov() {
+            const number = document.getElementById('moovNumber').value;
+            if (!number) {
+                showToast('Veuillez entrer votre numéro Moov', 'error');
+                return;
+            }
+            
+            saveWithdrawalMethod('moov', { number });
+            closeMoovModal();
+            showToast('Moyen de retrait Moov Money configuré !', 'success');
+            showWelcomePopup('success');
+        }
+
+        function confirmYas() {
+            const id = document.getElementById('yasId').value;
+            if (!id) {
+                showToast('Veuillez entrer votre ID Mix YAS', 'error');
+                return;
+            }
+            
+            saveWithdrawalMethod('yas', { id });
+            closeYasModal();
+            showToast('Moyen de retrait Mix YAS configuré !', 'success');
+            showWelcomePopup('success');
+        }
+
+        function confirmPaypal() {
+            const email = document.getElementById('paypalEmail').value;
+            if (!email) {
+                showToast('Veuillez entrer votre email PayPal', 'error');
+                return;
+            }
+            
+            saveWithdrawalMethod('paypal', { email });
+            closePaypalModal();
+            showToast('Moyen de retrait PayPal configuré !', 'success');
+            showWelcomePopup('success');
+        }
+
+        function saveWithdrawalMethod(type, details) {
+            const data = getAppData();
+            const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                data.users[userIndex].withdrawalMethod = {
+                    type: type,
+                    ...details
+                };
+                
+                if (data.users[userIndex].badge === 'new') {
+                    data.users[userIndex].badge = 'investor';
+                }
+                
+                saveAppData(data);
+                currentUser = data.users[userIndex];
+                localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                
+                if (currentPage === 'profile' || currentPage === 'withdrawal') {
+                    showPage(currentPage);
+                }
+            }
+        }
+
+        function processWithdrawal() {
+            showLoader("Traitement du retrait...");
+            
+            setTimeout(() => {
+                const data = getAppData();
+                const userInvestments = data.investments.filter(inv => inv.userId === currentUser.id && inv.status === 'active');
+                
+                if (userInvestments.length > 0) {
+                    userInvestments.forEach(inv => {
+                        inv.status = 'completed';
+                        inv.withdrawalDate = new Date().toISOString();
+                    });
+                    
+                    saveAppData(data);
+                    
+                    hideLoader();
+                    showToast('Retrait effectué avec succès ! Les fonds arriveront dans 24-48h.', 'success');
+                    
+                    const totalWithdrawn = userInvestments.reduce((sum, inv) => sum + inv.expectedReturn, 0);
+                    if (totalWithdrawn >= 500000 && currentUser.badge !== 'vip') {
+                        upgradeToVIP();
+                    }
+                    
+                    showPage('withdrawal');
+                } else {
+                    hideLoader();
+                    showToast('Aucun investissement actif trouvé', 'error');
+                }
+            }, 2000);
+        }
+
+        function upgradeToVIP() {
+            const data = getAppData();
+            const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                data.users[userIndex].badge = 'vip';
+                saveAppData(data);
+                currentUser = data.users[userIndex];
+                localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                
+                showToast('Félicitations ! Vous êtes maintenant un investisseur VIP 🎉', 'success');
+            }
+        }
+
+        // Fonctions pour le partage
+        function updateShareProgress() {
+            if (!currentUser) return;
+            
+            const progressFill = document.getElementById('progressFill');
+            const shareProgress = document.getElementById('shareProgress');
+            const shareReward = document.getElementById('shareReward');
+            
+            const progress = Math.min(currentUser.shares, 5);
+            const percentage = (progress / 5) * 100;
+            
+            progressFill.style.width = `${percentage}%`;
+            shareProgress.textContent = `${progress}/5 partages`;
+            
+            if (progress >= 5) {
+                shareReward.textContent = 'Félicitations ! Vous avez débloqué 1 jour de réduction sur votre retrait.';
+                shareReward.style.color = 'var(--success)';
+                
+                if (!currentUser.earlyWithdrawal) {
+                    currentUser.earlyWithdrawal = true;
+                    const data = getAppData();
+                    const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        data.users[userIndex].earlyWithdrawal = true;
+                        saveAppData(data);
+                        localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                    }
+                }
+            } else {
+                shareReward.textContent = `Partagez ${5 - progress} fois pour débloquer 1 jour de réduction !`;
+                shareReward.style.color = '';
+            }
+        }
+
+        function copyShareLink() {
+            const link = `cashout.com/${currentUser.id}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Lien copié dans le presse-papier !', 'success');
+            });
+        }
+
+        function shareOnWhatsApp() {
+            const text = `Rejoins-moi sur Cash Out Saison 2 ! Investis dès maintenant et prépare tes fêtes de fin d'année 🎄\n\nMon lien: https://cashout2season-meta-in-secure.github.io/com//${currentUser.id}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            
+            const data = getAppData();
+            const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                data.users[userIndex].shares++;
+                saveAppData(data);
+                currentUser.shares++;
+                localStorage.setItem('cashOut_currentUser', JSON.stringify(currentUser));
+                updateShareProgress();
+                showToast('Partage comptabilisé !', 'success');
+            }
+        }
+
+        // Fonctions pour le popup de bienvenue
+        function showWelcomePopup(type) {
+            const message = welcomeMessages[type];
+            if (message) {
+                document.getElementById('welcomeTitle').textContent = message.title;
+                document.getElementById('welcomeMessage').textContent = message.message;
+                document.getElementById('welcomePopup').classList.add('active');
+            }
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').classList.remove('active');
+        }
+
+        // Fonctions utilitaires
+        function getAppData() {
+            return JSON.parse(localStorage.getItem('cashOut_data') || '{}');
+        }
+
+        function saveAppData(data) {
+            localStorage.setItem('cashOut_data', JSON.stringify(data));
+        }
+
+        function generateUserId() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('fr-FR', options);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function calculateWithdrawalDate(user) {
+            const baseDate = new Date('2023-12-01');
+            if (user.earlyWithdrawal) {
+                baseDate.setDate(baseDate.getDate() - 1);
+            }
+            return baseDate.toISOString();
+        }
+
+        function isWithdrawalDateReached(user) {
+            const withdrawalDate = new Date(calculateWithdrawalDate(user));
+            const now = new Date();
+            return now >= withdrawalDate;
+        }
+
+        function showLoader(message = "Traitement en cours...") {
+            document.getElementById('loader').classList.add('active');
+            document.querySelector('.loader-text').textContent = message;
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('active');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(type, 'active');
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Fonction pour commander un produit
+        function openProductOrderModal(product) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <button class="modal-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="modal-header">
+                        <h3>Commander ${product.name}</h3>
+                        <p>${product.price}</p>
+                    </div>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method">
+                            <div class="payment-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="payment-details">
+                                <h4>Moov Money</h4>
+                                <p>+228 98 27 17 52</p>
+                            </div>
+                        </div>
+                        <div class="payment-method">
+                            <div class="payment-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="payment-details">
+                                <h4>TMoney</h4>
+                                <p>+229 98 76 54 32</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p class="upload-text">Déposez votre capture de paiement ici</p>
+                        <button class="btn-upload" onclick="document.getElementById('productFileInput').click()">Choisir un fichier</button>
+                        <input type="file" id="productFileInput" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <button class="btn-primary" onclick="confirmProductOrder('${product.id}')" style="margin-top: 20px;">
+                        <i class="fas fa-check"></i> Confirmer la commande
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+        }
+
+        function confirmProductOrder(productId) {
+            showLoader("Traitement de la commande...");
+            
+            setTimeout(() => {
+                const data = getAppData();
+                const product = INITIAL_DATA.products.find(p => p.id == productId);
+                
+                const order = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    productId: productId,
+                    productName: product.name,
+                    price: product.price,
+                    orderDate: new Date().toISOString(),
+                    status: 'En attente'
+                };
+                
+                data.orders.push(order);
+                saveAppData(data);
+                
+                hideLoader();
+                document.querySelector('.modal.active').remove();
+                showToast(`Commande de ${product.name} confirmée !`, 'success');
+                
+                if (currentPage === 'profile') {
+                    showPage('profile');
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
